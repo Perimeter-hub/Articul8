@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Articul8 - Pronunciation Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #1a0d00;
+        --bg-card: #2a1809;
+        --bg-card-light: #3a2613;
+        --orange: #ff6b35;
+        --orange-dark: #e55722;
+        --text: #f5f5f5;
+        --text-secondary: #b8a99a;
+        --success: #4ade80;
+        --error: #f87171;
+        --border: rgba(255, 107, 53, 0.2);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.6;
+        padding-bottom: 40px;
+    }
+
+    .container {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 16px;
+    }
+
+    /* Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0 24px;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .logo svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .streak {
+        background: var(--bg-card);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid var(--border);
+    }
+
+    .flag {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(to bottom, #b22234 0%, #b22234 7.7%, #fff 7.7%, #fff 15.4%, #b22234 15.4%, #b22234 23.1%, #fff 23.1%, #fff 30.8%, #b22234 30.8%, #b22234 38.5%, #fff 38.5%, #fff 46.2%, #b22234 46.2%, #b22234 53.9%, #fff 53.9%, #fff 61.6%, #b22234 61.6%, #b22234 69.3%, #fff 69.3%, #fff 77%, #b22234 77%, #b22234 84.7%, #fff 84.7%, #fff 92.4%, #b22234 92.4%);
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .flag::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40%;
+        height: 53.8%;
+        background: #3c3b6e;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        margin-bottom: 24px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: var(--bg-card);
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--orange-dark), var(--orange));
+        border-radius: 8px;
+        width: 35%;
+        transition: width 0.4s ease;
+        box-shadow: 0 0 12px rgba(255, 107, 53, 0.5);
+    }
+
+    /* Problem Sounds */
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+
+    .sound-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .sound-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .sound-badge {
+        background: var(--orange);
+        color: var(--bg);
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    .sentence {
+        font-size: 18px;
+        line-height: 1.8;
+        margin-bottom: 16px;
+        word-spacing: 4px;
+    }
+
+    .sentence span {
+        transition: all 0.2s ease;
+        border-radius: 4px;
+        padding: 2px 0;
+    }
+
+    .sentence span.active {
+        background: var(--orange);
+        color: var(--bg);
+        padding: 2px 6px;
+        box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+    }
+
+    .karaoke-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .toggle {
+        width: 44px;
+        height: 24px;
+        background: var(--bg-card-light);
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        border: 1px solid var(--border);
+    }
+
+    .toggle.active {
+        background: var(--orange);
+    }
+
+    .toggle-slider {
+        width: 18px;
+        height: 18px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle.active .toggle-slider {
+        transform: translateX(20px);
+    }
+
+    /* Waveforms */
+    .waveform-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .waveform-box {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid var(--border);
+    }
+
+    .waveform-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .waveform {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2px;
+    }
+
+    .waveform-bar {
+        flex: 1;
+        background: var(--bg-card-light);
+        border-radius: 2px;
+        transition: height 0.1s ease, background 0.1s ease;
+        max-width: 4px;
+        min-height: 4px;
+    }
+
+    .tutor .waveform-bar {
+        background: var(--orange);
+        opacity: 0.3;
+    }
+
+    .you.active .waveform-bar {
+        background: var(--orange);
+    }
+
+    /* Speed Controls */
+    .speed-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .speed-btn {
+        flex: 1;
+        padding: 8px;
+        background: var(--bg-card-light);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .speed-btn.active {
+        background: var(--orange);
+        color: var(--bg);
+        border-color: var(--orange);
+    }
+
+    /* Control Buttons */
+    .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .btn {
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+    }
+
+    .btn:active {
+        transform: scale(0.97);
+    }
+
+    .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .btn-primary {
+        background: var(--orange);
+        color: var(--bg);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: var(--orange-dark);
+        box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--bg-card);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: var(--bg-card-light);
+    }
+
+    .btn-record.recording {
+        background: var(--error);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); }
+        50% { box-shadow: 0 0 0 8px rgba(248, 113, 113, 0); }
+    }
+
+    .btn-full {
+        grid-column: 1 / -1;
+    }
+
+    .btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Error Message */
+    .error-msg {
+        background: rgba(248, 113, 113, 0.1);
+        border: 1px solid var(--error);
+        color: var(--error);
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-bottom: 16px;
+        display: none;
+        animation: slideDown 0.3s ease;
+    }
+
+    .error-msg.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Success Message */
+    .success-msg {
+        background: rgba(74, 222, 128, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        margin-bottom: 16px;
+        display: none;
+        text-align: center;
+    }
+
+    .success-msg.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @media (max-width: 360px) {
+        .container { padding: 12px; }
+        .sentence { font-size: 16px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#ff6b35"/>
+                <path d="M2 17L12 22L22 17" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="#ff6b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Articul8
+        </div>
+        <div class="header-right">
+            <div class="streak">
+                <span>🔥</span>
+                <span>Day 3 Streak</span>
+            </div>
+            <div class="flag"></div>
+        </div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-label">
+            <span>Daily Progress</span>
+            <span>7/20</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <div class="section-title">Problem Sounds</div>
+    <div class="sound-card">
+        <div class="sound-header">
+            <div class="sound-badge">[TH]</div>
+            <div class="karaoke-toggle">
+                <span>Karaoke Mode</span>
+                <div class="toggle" id="karaokeToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+        <div class="sentence" id="sentence">
+            <span>Three</span> <span>thin</span> <span>thinkers</span> <span>think</span> <span>thick</span> <span>thoughts</span>
+        </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg">✓ Great job! Exercise marked complete</div>
+
+    <div class="waveform-container">
+        <div class="waveform-box">
+            <div class="waveform-label">TUTOR</div>
+            <div class="waveform tutor" id="tutorWaveform"></div>
+        </div>
+        <div class="waveform-box">
+            <div class="waveform-label">YOU</div>
+            <div class="waveform you" id="youWaveform"></div>
+        </div>
+    </div>
+
+    <div class="speed-controls">
+        <button class="speed-btn" id="speed08">0.8x</button>
+        <button class="speed-btn active" id="speed10">1.0x</button>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-secondary" id="listenBtn">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            Listen
+        </button>
+        <button class="btn btn-primary btn-record" id="recordBtn">
+            <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+            Record
+        </button>
+        <button class="btn btn-secondary" id="playbackBtn" disabled>
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Playback
+        </button>
+        <button class="btn btn-secondary" id="completeBtn">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Mark Complete
+        </button>
+    </div>
+</div>
+
+<script>
+(() => {
+    console.log('[Articul8] App initialized');
+    
+    // State
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioBlob = null;
+    let audioURL = null;
+    let stream = null;
+    let audioContext = null;
+    let analyser = null;
+    let animationFrame = null;
+    let isRecording = false;
+    let recordingTimeout = null;
+    let speechRate = 1.0;
+    let karaokeEnabled = false;
+    let currentUtterance = null;
+
+    const PHRASE = "Three thin thinkers think thick thoughts";
+    const WORDS = PHRASE.split(' ');
+
+    // DOM Elements
+    const listenBtn = document.getElementById('listenBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const playbackBtn = document.getElementById('playbackBtn');
+    const completeBtn = document.getElementById('completeBtn');
+    const speed08Btn = document.getElementById('speed08');
+    const speed10Btn = document.getElementById('speed10');
+    const karaokeToggle = document.getElementById('karaokeToggle');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const tutorWaveform = document.getElementById('tutorWaveform');
+    const youWaveform = document.getElementById('youWaveform');
+    const sentence = document.getElementById('sentence');
+    const progressFill = document.getElementById('progressFill');
+
+    // Initialize waveforms
+    function initWaveforms() {
+        const barCount = 30;
+        tutorWaveform.innerHTML = '';
+        youWaveform.innerHTML = '';
+        
+        for (let i = 0; i < barCount; i++) {
+            const bar1 = document.createElement('div');
+            bar1.className = 'waveform-bar';
+            bar1.style.height = `${Math.random() * 40 + 10}%`;
+            tutorWaveform.appendChild(bar1);
+
+            const bar2 = document.createElement('div');
+            bar2.className = 'waveform-bar';
+            bar2.style.height = '4px';
+            youWaveform.appendChild(bar2);
+        }
+    }
+
+    // Show error
+    function showError(msg) {
+        console.error('[Articul8] Error:', msg);
+        errorMsg.textContent = msg;
+        errorMsg.classList.add('show');
+        setTimeout(() => errorMsg.classList.remove('show'), 5000);
+    }
+
+    // Hide error
+    function hideError() {
+        errorMsg.classList.remove('show');
+    }
+
+    // TTS - Listen
+    function speak() {
+        if (currentUtterance) {
+            window.speechSynthesis.cancel();
+        }
+
+        hideError();
+        const utterance = new SpeechSynthesisUtterance(PHRASE);
+        utterance.rate = speechRate;
+        utterance.pitch = 1;
+        utterance.lang = 'en-US';
+        currentUtterance = utterance;
+
+        console.log('[Articul8] Speaking at rate:', speechRate);
+
+        if (karaokeEnabled) {
+            const wordSpans = sentence.querySelectorAll('span');
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    const charIndex = event.charIndex;
+                    let wordIndex = 0;
+                    let charCount = 0;
+                    
+                    for (let i = 0; i < WORDS.length; i++) {
+                        if (charIndex >= charCount && charIndex < charCount + WORDS[i].length) {
+                            wordIndex = i;
+                            break;
+                        }
+                        charCount += WORDS[i].length + 1;
+                    }
+
+                    wordSpans.forEach((span, idx) => {
+                        span.classList.toggle('active', idx === wordIndex);
+                    });
+                    console.log('[Articul8] Karaoke word:', WORDS[wordIndex]);
+                }
+            };
+
+            utterance.onend = () => {
+                wordSpans.forEach(span => span.classList.remove('active'));
+                console.log('[Articul8] Speech ended');
+                currentUtterance = null;
+            };
+        }
+
+        window.speechSynthesis.speak(utterance);
+        
+        // Animate tutor waveform during speech
+        animateTutorWaveform(utterance);
+    }
+
+    function animateTutorWaveform(utterance) {
+        const bars = tutorWaveform.querySelectorAll('.waveform-bar');
+        let startTime = Date.now();
+        const duration = (PHRASE.length * 80) / speechRate;
+
+        function update() {
+            if (!window.speechSynthesis.speaking) {
+                bars.forEach(bar => bar.style.opacity = '0.3');
+                return;
+            }
+
+            bars.forEach((bar, i) => {
+                const offset = Math.sin((Date.now() - startTime) / 200 + i * 0.5) * 0.5 + 0.5;
+                bar.style.opacity = 0.3 + offset * 0.7;
+            });
+
+            requestAnimationFrame(update);
+        }
+        update();
+    }
+
+    // Recording
+    async function startRecording() {
+        try {
+            hideError();
+            console.log('[Articul8] Requesting microphone access');
+            
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                } 
+            });
+            
+            console.log('[Articul8] Microphone access granted');
+            
+            // Setup MediaRecorder
+            const options = { mimeType: 'audio/webm;codecs=opus' };
+            mediaRecorder = new MediaRecorder(stream, MediaRecorder.isTypeSupported(options.mimeType) ? options : {});
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                audioURL = URL.createObjectURL(audioBlob);
+                playbackBtn.disabled = false;
+                console.log('[Articul8] Recording saved, blob size:', audioBlob.size);
+                stopVisualizer();
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            
+            // Update UI
+            recordBtn.classList.add('recording');
+            recordBtn.innerHTML = `
+                <svg fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                Stop
+            `;
+            
+            // Start visualizer
+            setupVisualizer(stream);
+            
+            // Auto-stop after 8 seconds
+            recordingTimeout = setTimeout(() => {
+                if (isRecording) stopRecording();
+            }, 8000);
+            
+            console.log('[Articul8] Recording started');
+            
+        } catch (err) {
+            console.error('[Articul8] Microphone error:', err);
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                showError('Microphone blocked. Click the lock icon in address bar to enable');
+            } else if (err.name === 'NotFoundError') {
+                showError('No microphone found. Please connect a microphone');
+            } else {
+                showError('Could not access microphone: ' + err.message);
+            }
+        }
+    }
+
+    function stopRecording() {
+        if (!isRecording) return;
+        
+        console.log('[Articul8] Stopping recording');
+        isRecording = false;
+        
+        if (recordingTimeout) {
+            clearTimeout(recordingTimeout);
+            recordingTimeout = null;
+        }
+        
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        
+        recordBtn.classList.remove('recording');
+        recordBtn.innerHTML = `
+            <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+            Record
+        `;
+    }
+
+    // Visualizer for YOU waveform
+    function setupVisualizer(stream) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        
+        analyser.fftSize = 64;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        const bars = youWaveform.querySelectorAll('.waveform-bar');
+        youWaveform.classList.add('active');
+        
+        function draw() {
+            if (!isRecording) return;
+            
+            animationFrame = requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+            
+            bars.forEach((bar, i) => {
+                const index = Math.floor((i / bars.length) * bufferLength);
+                const value = dataArray[index] / 255;
+                const height = Math.max(4, value * 100);
+                bar.style.height = `${height}%`;
+            });
+        }
+        
+        draw();
+    }
+
+    function stopVisualizer() {
+        if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+        }
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        youWaveform.classList.remove('active');
+        const bars = youWaveform.querySelectorAll('.waveform-bar');
+        bars.forEach(bar => bar.style.height = '4px');
+    }
+
+    // Playback
+    function playRecording() {
+        if (!audioURL) {
+            showError('No recording available. Please record first');
+            return;
+        }
+        
+        console.log('[Articul8] Playing back recording');
+        const audio = new Audio(audioURL);
+        audio.play().catch(err => {
+            console.error('[Articul8] Playback error:', err);
+            showError('Could not play recording');
+        });
+    }
+
+    // Mark Complete
+    function markComplete() {
+        console.log('[Articul8] Marked complete');
+        successMsg.classList.add('show');
+        progressFill.style.width = '40%';
+        setTimeout(() => successMsg.classList.remove('show'), 3000);
+    }
+
+    // Event Listeners
+    listenBtn.addEventListener('click', speak);
+    
+    recordBtn.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+    
+    playbackBtn.addEventListener('click', playRecording);
+    completeBtn.addEventListener('click', markComplete);
+    
+    speed08Btn.addEventListener('click', () => {
+        speechRate = 0.8;
+        speed08Btn.classList.add('active');
+        speed10Btn.classList.remove('active');
+        console.log('[Articul8] Speed set to 0.8x');
+    });
+    
+    speed10Btn.addEventListener('click', () => {
+        speechRate = 1.0;
+        speed10Btn.classList.add('active');
+        speed08Btn.classList.remove('active');
+        console.log('[Articul8] Speed set to 1.0x');
+    });
+    
+    karaokeToggle.addEventListener('click', () => {
+        karaokeEnabled = !karaokeEnabled;
+        karaokeToggle.classList.toggle('active', karaokeEnabled);
+        console.log('[Articul8] Karaoke mode:', karaokeEnabled);
+    });
+
+    // Check for HTTPS
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        console.warn('[Articul8] Not running on HTTPS - microphone may not work');
+    }
+
+    // Init
+    initWaveforms();
+    
+    // Check if MediaRecorder is supported
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showError('Your browser does not support microphone recording');
+        recordBtn.disabled = true;
+    }
+    
+    if (!window.speechSynthesis) {
+        showError('Your browser does not support text-to-speech');
+        listenBtn.disabled = true;
+    }
+})();
+</script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+</body>
+</html>
